@@ -1,0 +1,70 @@
+<div class="noise-overlay"></div>
+<nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+    <div class="container mx-auto px-6 h-20 flex items-center justify-between">
+        <a (click)="scrollToSection('home')" class="cursor-pointer hover:opacity-80 transition-opacity">
+            <img src="assets/logo.png" alt="Snehal.D Logo" class="h-12 w-auto">
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+            <button (click)="scrollToSection('insights')"
+                class="text-sm font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase cursor-pointer">Insights</button>
+            <button (click)="scrollToSection('work')"
+                class="text-sm font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase cursor-pointer">Work</button>
+            <button (click)="scrollToSection('resources')"
+                class="text-sm font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase cursor-pointer">Resources</button>
+            <button (click)="scrollToSection('contact')"
+                class="px-6 py-2 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-white hover:text-black transition-all cursor-pointer">Contact</button>
+        </div>
+    </div>
+</nav>
+
+<main class="bg-black text-white">
+    <section id="home">
+        <app-landing></app-landing>
+    </section>
+
+    <section id="insights" class="mt-12 relative z-20">
+        <app-knowledge-hub></app-knowledge-hub>
+    </section>
+
+    <section id="work">
+        <app-projects></app-projects>
+    </section>
+
+    <section id="resources">
+        <app-resources></app-resources>
+    </section>
+
+    <section id="contact">
+        <app-contact></app-contact>
+    </section>
+</main>
+
+<footer class="bg-black text-gray-500 py-12 border-t border-white/10">
+    <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+            <h3 class="text-white font-serif font-bold text-xl mb-4">Snehal.D</h3>
+            <p class="text-sm font-light">Minimalist strategy for complex problems.</p>
+        </div>
+        <div>
+            <h4 class="text-white font-bold uppercase tracking-widest text-xs mb-4">Navigation</h4>
+            <ul class="space-y-2 text-sm font-mono">
+                <li><button (click)="scrollToSection('home')"
+                        class="hover:text-white transition-colors cursor-pointer">Home</button></li>
+                <li><button (click)="scrollToSection('insights')"
+                        class="hover:text-white transition-colors cursor-pointer">Insights</button></li>
+                <li><button (click)="scrollToSection('work')"
+                        class="hover:text-white transition-colors cursor-pointer">Work</button></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="text-white font-bold uppercase tracking-widest text-xs mb-4">Connect</h4>
+            <ul class="space-y-2 text-sm font-mono">
+                <li><a href="#" class="hover:text-white transition-colors">LinkedIn</a></li>
+                <li><a href="#" class="hover:text-white transition-colors">Email</a></li>
+            </ul>
+        </div>
+        <div>
+            <p class="text-xs font-mono opacity-50">&copy; 2026 Snehal Dhakate.</p>
+        </div>
+    </div>
+</footer>
