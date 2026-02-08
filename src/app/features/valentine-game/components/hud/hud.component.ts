@@ -123,11 +123,11 @@ export class HudComponent {
 
   getItemEmoji(item: string): string {
     switch (item) {
-      case 'Show-Up Shield': return 'assets/icon_shield.png';
-      case 'Boundary Compass': return 'assets/icon_compass.png';
-      case 'Dual Bouquet': return 'assets/icon_bouquet.png';
-      case 'Love Token': return 'assets/icon_token.png';
-      default: return 'assets/icon_token.png';
+      case 'Show-Up Shield': return '/assets/icon_shield.png';
+      case 'Boundary Compass': return '/assets/icon_compass.png';
+      case 'Dual Bouquet': return '/assets/icon_bouquet.png';
+      case 'Love Token': return '/assets/icon_token.png';
+      default: return '/assets/icon_token.png';
     }
   }
 
@@ -140,6 +140,7 @@ export class HudComponent {
       case 'Show-Up Shield': return 'Protects you from self-doubt.';
       case 'Boundary Compass': return 'Guides you to healthy relationships.';
       case 'Dual Bouquet': return 'A symbol of shared love.';
+      case 'Love Token': return 'Reminds you that you are loved.';
       default: return 'A mysterious item.';
     }
   }

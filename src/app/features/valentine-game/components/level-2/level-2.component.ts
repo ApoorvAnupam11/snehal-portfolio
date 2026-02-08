@@ -64,15 +64,15 @@ import { LevelCompletionComponent } from '../level-completion/level-completion.c
 
       <!-- Tutorial/Hint -->
       <div *ngIf="!fogCleared()" class="absolute top-1/4 left-1/2 transform -translate-x-1/2 z-40 pointer-events-none text-white text-opacity-90 font-bold text-2xl animate-pulse drop-shadow-md text-center">
-          <p>The bridge is foggy...</p>
-          <p class="text-lg mt-2 font-normal">Swipe to clear the path! ☁️</p>
+          <p>The Forest is foggy...</p>
+          <!-- <p class="text-lg mt-2 font-normal">Swipe to clear the path! ☁️</p> -->
       </div>
 
       <!-- Level Completion Popup (Fixed at root) -->
       <app-level-completion *ngIf="showCompletion()"
-        itemName="Boundary Compass"
-        itemImage="assets/icon_compass.png"
-        itemDescription="Directs you to what matters. You set a boundary!"
+        itemName="Show-Up Shield"
+        itemImage="assets/icon_shield.png"
+        itemDescription="It protects your peace when you show up for yourself."
         (onContinue)="continueToNextLevel()">
       </app-level-completion>
 
@@ -257,8 +257,8 @@ export class Level2Component implements AfterViewInit {
         this.isLevelComplete.set(true);
         this.feedbackMessage.set(''); // Clear any error message
 
-        // Reward: Boundary Compass
-        this.gameState.addToInventory('Boundary Compass');
+        // Reward: Show-Up Shield
+        this.gameState.addToInventory('Show-Up Shield');
 
         setTimeout(() => {
             this.showCompletion.set(true);

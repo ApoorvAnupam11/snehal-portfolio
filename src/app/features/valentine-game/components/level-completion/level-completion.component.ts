@@ -32,7 +32,7 @@ import { AssetLoaderService } from '../../services/asset-loader.service';
 
         <button (click)="continue()" 
                 class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-lg font-bold py-2 px-8 rounded-full shadow-lg hover:shadow-xl transform transition hover:scale-110 active:scale-95 animate-pulse">
-          Continue ➡️
+          Continue
         </button>
 
       </div>

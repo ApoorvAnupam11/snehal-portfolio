@@ -52,7 +52,7 @@ interface Card {
 
       <!-- Progress Indicator (Top Right) -->
       <div class="absolute top-24 right-4 z-20 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-white font-mono text-xl font-bold shadow-lg pointer-events-none">
-          {{ currentIndex + 1 }} / {{ totalCards }}
+          {{ currentIndex }} / {{ totalCards }}
       </div>
 
       <!-- Companion (Bottom Right - Matching Level 2) -->
@@ -349,6 +349,6 @@ export class Level3Component implements OnInit {
     }
 
     continueToNextLevel() {
-        this.router.navigate(['/valentine/level-4']); // Level 4 or Finale
+        this.router.navigate(['/valentine/bouquet-vault']);
     }
 }

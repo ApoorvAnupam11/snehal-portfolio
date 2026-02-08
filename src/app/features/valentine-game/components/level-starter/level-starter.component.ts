@@ -48,7 +48,7 @@ import { GameState } from '../../services/game-state';
 
           <button *ngIf="isLastDialogue()" (click)="finish()" 
                   class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all animate-bounce">
-            Let's Go! 🚀
+            Let's Go!
           </button>
 
         </div>
