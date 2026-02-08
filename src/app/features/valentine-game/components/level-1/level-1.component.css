@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes appearDisappear {
+    0% {
+        transform: scale(0) rotate(-10deg);
+        opacity: 0;
+    }
+
+    10% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+
+    45% {
+        transform: scale(1.05) translateY(-10px) rotate(5deg);
+    }
+
+    55% {
+        transform: scale(1) translateY(0px) rotate(-5deg);
+    }
+
+    85% {
+        transform: scale(1.05) translateY(-5px) rotate(2deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.2) translateY(-20px) rotate(0deg);
+        opacity: 0;
+    }
+}
+
+.animate-appear-disappear {
+    animation: appearDisappear 4s ease-in-out forwards;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.animate-pop-in {
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-bounce-slow {
+    animation: bounce 3s infinite;
+}
+
+@keyframes burst {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.4);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.animate-burst {
+    animation: burst 0.3s ease-out forwards;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(-5%);
+    }
+
+    50% {
+        transform: translateY(0);
+    }
+}

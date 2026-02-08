@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
@@ -38,27 +40,54 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   `,
     styles: []
 })
-export class ShinChanPopupComponent implements OnInit {
+export class ShinChanPopupComponent implements OnInit, OnDestroy {
     isVisible = false;
+    private routerSubscription: Subscription | undefined;
 
     constructor(private router: Router) { }
 
     ngOnInit() {
-        // Check if it's Valentine's Day (Feb 14)
-        // Month is 0-indexed (0 = Jan, 1 = Feb)
-        const today = new Date();
-        // For demo purposes, we can uncomment the next line to always show it
-        const isValentines = true; // today.getMonth() === 1 && today.getDate() === 14;
+        this.checkVisibility();
 
-        if (isValentines) {
+        // Subscribe to router events to handle navigation
+        this.routerSubscription = this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd)
+        ).subscribe(() => {
+            this.checkVisibility();
+        });
+    }
+
+    ngOnDestroy() {
+        if (this.routerSubscription) {
+            this.routerSubscription.unsubscribe();
+        }
+    }
+
+    private checkVisibility() {
+        // Only show strictly on the home page ('/')
+        const isHomePage = this.router.url === '/';
+
+        if (!isHomePage) {
+            this.isVisible = false;
+            return;
+        }
+
+        // Check if it's Valentine's Day logic (simplified for demo)
+        const isValentines = true;
+
+        if (isValentines && isHomePage && !this.isVisible) {
+            // Only set timeout if we are not already visible to avoid reset loops
+            // Actually, simplest is just to set it true if home
             setTimeout(() => {
-                this.isVisible = true;
-            }, 1000); // Slight delay for effect
+                if (this.router.url === '/') {
+                    this.isVisible = true;
+                }
+            }, 1000);
         }
     }
 
     startAdventure() {
         this.isVisible = false;
-        this.router.navigate(['/adventure']);
+        this.router.navigate(['/valentine']);
     }
 }

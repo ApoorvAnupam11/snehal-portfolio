@@ -1,0 +1,77 @@
+<app-level-starter *ngIf="showIntro()" [dialogues]="introDialogues" (onComplete)="startLevel()">
+</app-level-starter>
+
+<div *ngIf="!showIntro()" class="fixed inset-0 overflow-hidden flex flex-col items-center justify-center bg-pink-50">
+    <!-- Background Image Layer -->
+    <div class="absolute inset-0 z-0 opacity-50 bg-cover bg-center"
+        [style.backgroundImage]="'url(/assets/bg_meadow.png)'">
+    </div>
+
+    <!-- HUD / Timer -->
+    <div
+        class="absolute top-4 left-4 z-20 bg-white/80 backdrop-blur rounded-full px-6 py-2 shadow-lg border-2 border-pink-200">
+        <span class="text-2xl font-bold text-pink-600 font-mono">
+            {{ timeLeft() }}s
+        </span>
+    </div>
+
+    <!-- Collected Words Indicator -->
+    <div class="absolute top-4 right-4 z-20 flex flex-col items-end gap-2">
+        <div class="bg-white/80 backdrop-blur rounded-2xl px-4 py-2 shadow-lg border-2 border-pink-200">
+            <p class="text-pink-800 font-bold text-xs uppercase tracking-wider">Collected</p>
+            <div class="flex gap-2 mt-1">
+                <div *ngFor="let i of [0, 1, 2]"
+                    class="w-8 h-8 rounded-full border-2 border-pink-300 flex items-center justify-center bg-pink-50 transition-all duration-300"
+                    [class.bg-pink-500]="collectedWords().length > i" [class.text-white]="collectedWords().length > i">
+                    <span *ngIf="collectedWords().length > i" class="text-xs">❤️</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Companion (Bottom Right) -->
+    <img [src]="companionImage()"
+        class="absolute bottom-0 right-4 z-20 w-32 md:w-56 pointer-events-none filter drop-shadow-2xl opacity-90 transition-all duration-500">
+
+    <!-- Bubbles Container -->
+    <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+        <ng-container *ngFor="let bubble of bubbles()">
+            <div (click)="selectBubble(bubble.id)" class="absolute cursor-pointer
+                        w-24 h-24 rounded-full border-2 shadow-xl
+                        flex items-center justify-center 
+                        pointer-events-auto select-none
+                        transition-colors duration-300" [class.bg-pink-500]="bubble.selected"
+                [class.text-white]="bubble.selected" [class.animate-burst]="bubble.selected"
+                [class.bg-pink-100]="!bubble.selected" [class.bg-opacity-60]="!bubble.selected"
+                [class.backdrop-blur-sm]="!bubble.selected" [class.border-pink-300]="!bubble.selected"
+                [class.text-pink-800]="!bubble.selected" [class.animate-appear-disappear]="!bubble.selected"
+                [style.left.%]="bubble.x" [style.top.%]="bubble.y">
+
+                <span class="font-bold text-sm z-10 relative">{{ bubble.word }}</span>
+
+                <!-- Shine effect -->
+                <div class="absolute top-4 left-4 w-4 h-4 bg-white/40 rounded-full z-0"></div>
+            </div>
+        </ng-container>
+    </div>
+
+    <!-- Success Overlay -->
+    <app-level-completion *ngIf="showCompletion()" itemName="Love Token" itemImage="assets/icon_token.png"
+        itemDescription="A symbol of your affection. Collected with care!" (onContinue)="continueToNextLevel()">
+    </app-level-completion>
+
+    <!-- Retry Overlay -->
+    <div *ngIf="showRetry()"
+        class="absolute inset-0 z-50 bg-black/50 flex items-center justify-center animate-fade-in backdrop-blur-sm">
+        <div
+            class="bg-white p-8 rounded-3xl text-center shadow-2xl transform scale-100 animate-pop-in border-4 border-red-400">
+            <h2 class="text-3xl font-bold text-red-600 mb-2">Time's Up!</h2>
+            <p class="text-gray-600 mb-4">You need 3 words to proceed!</p>
+            <button (click)="retryLevel()"
+                class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform hover:scale-105">
+                Try Again 🚀
+            </button>
+        </div>
+    </div>
+
+</div>
