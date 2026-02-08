@@ -1,4 +1,4 @@
-# ConsultantPortfolio
+# Snehal Portfolio
 
 This project was made using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.3.
 
