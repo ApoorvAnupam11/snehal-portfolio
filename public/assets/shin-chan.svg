@@ -1,0 +1,16 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Head -->
+  <path d="M50 60 Q40 100 80 120 Q120 140 150 100 Q170 60 130 40 Q90 20 50 60" fill="#FFD700" stroke="black" stroke-width="3"/>
+  <!-- Eyes -->
+  <circle cx="90" cy="80" r="5" fill="black"/>
+  <circle cx="130" cy="80" r="5" fill="black"/>
+  <!-- Eyebrows -->
+  <path d="M80 70 Q90 60 100 70" stroke="black" stroke-width="3" fill="none"/>
+  <path d="M120 70 Q130 60 140 70" stroke="black" stroke-width="3" fill="none"/>
+  <!-- Mouth -->
+  <path d="M100 100 Q110 110 120 100" stroke="black" stroke-width="2" fill="none"/>
+  <!-- Body (Red Shirt) -->
+  <path d="M80 120 L80 180 L140 180 L140 120 Z" fill="red" stroke="black" stroke-width="3"/>
+  <!-- Shorts (Yellow) -->
+  <path d="M80 180 L80 190 L140 190 L140 180 Z" fill="yellow" stroke="black" stroke-width="3"/>
+</svg>

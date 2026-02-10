@@ -1,258 +1,469 @@
-import { Component, OnInit, signal, computed, effect } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameState } from '../../services/game-state';
-import { AssetLoaderService } from '../../services/asset-loader.service';
-import confetti from 'canvas-confetti';
+import { Application, Assets, Container, Sprite, Text, Graphics, TextStyle, Texture } from 'pixi.js';
 
 @Component({
     selector: 'app-final-cutscene',
     standalone: true,
     imports: [CommonModule],
     template: `
-    <div class="fixed inset-0 overflow-hidden bg-slate-900 flex flex-col items-center justify-center">
-      
-      <!-- Background -->
-      <div class="absolute inset-0 z-0 bg-cover bg-center transition-opacity duration-1000" 
-           style="background-image: url('/assets/bg_observatory.png');">
-           <div class="absolute inset-0 bg-black/40"></div>
-           
-           <!-- Twinkling Stars Effect (CSS based) -->
-           <div class="stars absolute inset-0"></div>
-      </div>
-
-      <!-- Main Content Area -->
-      <div class="relative z-10 w-full max-w-2xl px-6 flex flex-col items-center min-h-[60vh] justify-center">
-        
-        <!-- Panel 1: Arrival -->
-        <div *ngIf="panelIndex() === 0" class="text-center animate-fade-in">
-             <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-2xl">
-                <p class="text-2xl md:text-3xl text-white font-serif leading-relaxed italic">
-                    "Explorer Snehal... you made it." 🌙
-                </p>
-             </div>
-        </div>
-
-        <!-- Panel 2: Montage -->
-        <div *ngIf="panelIndex() === 1" class="text-center w-full animate-fade-in">
-             <div class="mb-8 flex flex-wrap justify-center gap-4">
-                 <span *ngFor="let word of gameState.memoryWords(); let i = index" 
-                       class="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 drop-shadow-lg animate-float"
-                       [style.animation-delay]="i * 0.2 + 's'">
-                     {{ word }}.
-                 </span>
-             </div>
-             
-             <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl inline-block">
-                <p class="text-xl text-white font-medium">
-                    "That’s you. That’s what I see."
-                </p>
-             </div>
-        </div>
-
-        <!-- Panel 3: Heart Line -->
-        <div *ngIf="panelIndex() === 2" class="text-center animate-fade-in">
-             <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-2xl space-y-6">
-                <p class="text-2xl text-white font-light">
-                    "Somewhere in my ordinary days, you became home."
-                </p>
-                <p class="text-2xl text-pink-200 font-medium">
-                    "I don’t want loud love for a day. I want steady love for years."
-                </p>
-             </div>
-        </div>
-
-        <!-- Panel 4: The Proposal -->
-        <div *ngIf="panelIndex() === 3" class="text-center w-full animate-scale-up relative">
-             
-             <!-- Proposal Text -->
-             <div class="mb-12 space-y-4">
-                <p class="text-xl text-gray-300 uppercase tracking-widest font-bold">So here’s my real question...</p>
-                <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight drop-shadow-xl">
-                    "Will you hold my hand — and be mine, for real?" 💍🫶
-                </h1>
-             </div>
-
-             <!-- Buttons Container -->
-             <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 h-32 relative">
-                 
-                 <!-- YES Button -->
-                 <button (click)="handleYes()" 
-                         class="px-10 py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold text-2xl rounded-full shadow-lg transform transition-all hover:scale-110 hover:shadow-pink-500/50 z-20">
-                     YES ✨
-                 </button>
-
-                 <!-- NO Button (The Gag) -->
-                 <div class="relative w-40 h-16"> <!-- Wrapper to contain movement if needed, or absolute positioning -->
-                    <button #noButton
-                            (click)="handleNo()"
-                            class="absolute top-0 left-0 w-full h-full px-8 py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold text-xl rounded-full shadow-lg transition-all duration-300 z-10"
-                            [style.transform]="noButtonTransform()"
-                            [class.bg-green-500]="noClickCount() >= 3"
-                            [class.hover:bg-green-400]="noClickCount() >= 3">
-                        {{ noButtonText() }}
-                    </button>
-                 </div>
-
-             </div>
-        </div>
-
-        <!-- Win Screen Overlay -->
-        <div *ngIf="showWin()" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
-            <!-- Confetti Canvas -->
-            <canvas #confettiCanvas class="absolute inset-0 pointer-events-none"></canvas>
-            
-            <div class="relative z-10 text-center space-y-8 p-8 max-w-2xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl">
-                <h1 class="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 drop-shadow-xl mb-4">
-                    She said YES! 🏆
-                </h1>
-                
-                <p class="text-2xl text-white font-medium">
-                    "Achievement unlocked: Now I’m officially your problem." 😌💛
-                </p>
-
-                <div class="flex flex-col md:flex-row gap-4 justify-center mt-8">
-                    <button (click)="replay()" class="px-8 py-3 bg-white/20 hover:bg-white/30 text-white rounded-xl font-bold border border-white/30 backdrop-blur-md transition-all">
-                        Replay Memory 🔄
-                    </button>
-                    <button (click)="goHome()" class="px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-bold shadow-lg transition-all">
-                        Back to Portfolio 🏠
-                    </button>
-                </div>
-            </div>
-        </div>
-
-      </div>
-
-      <!-- Navigation / Tap to Continue (Panels 0-2) -->
-      <div *ngIf="panelIndex() < 3" 
-           (click)="nextPanel()"
-           class="absolute inset-0 z-20 cursor-pointer"
-           title="Tap to continue">
-           <!-- Hand hint at bottom -->
-           <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white/50 animate-bounce text-sm font-bold uppercase tracking-widest">
-               Tap to continue
-           </div>
-      </div>
-
-      <!-- Companion Area -->
-      <div class="absolute bottom-0 right-4 md:right-10 z-10 w-32 md:w-56 pointer-events-none transition-all duration-500"
-           [class.opacity-0]="showWin()"> <!-- Hide on win screen if needed, or keep -->
-          
-          <!-- Dialogue Bubble -->
-          <div *ngIf="companionMessage()" class="absolute bottom-full right-0 mb-4 w-64 bg-white text-gray-800 p-4 rounded-2xl rounded-br-none shadow-xl animate-pop-in z-20">
-              <p class="font-medium text-lg leading-snug">{{ companionMessage() }}</p>
-          </div>
-
-          <img [src]="companionImage()" class="w-full object-contain filter drop-shadow-2xl" alt="Companion">
-      </div>
-
+    <div class="w-full h-screen bg-black overflow-hidden">
+        <div #pixiContainer class="w-full h-full"></div>
     </div>
   `,
     styles: [`
-    .stars {
-        background-image: 
-            radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0));
-        background-repeat: repeat;
-        background-size: 200px 200px;
-        animation: twinkle 4s infinite;
-        opacity: 0.6;
-    }
-    @keyframes twinkle {
-        0% { transform: translateY(0); opacity: 0.6; }
-        50% { opacity: 0.3; }
-        100% { transform: translateY(-20px); opacity: 0.6; }
-    }
-    .animate-float { animation: float 3s ease-in-out infinite; }
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-    .animate-fade-in { animation: fadeIn 1s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .animate-scale-up { animation: scaleUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    :host { display: block; }
   `]
 })
-export class FinalCutsceneComponent implements OnInit {
+export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
+    @ViewChild('pixiContainer') pixiContainer!: ElementRef<HTMLDivElement>;
 
-    panelIndex = signal(0);
-    noClickCount = signal(0);
-    showWin = signal(false);
-    companionMessage = signal('');
+    private app!: Application;
 
-    // "No" Button State
-    noButtonText = computed(() => {
-        if (this.noClickCount() >= 3) return "Okay fine... YES 🙃";
-        return "No 🙃";
-    });
+    // Layers
+    private bgLayer!: Container;
+    private gameContainer!: Container;
+    private charLayer!: Container;
+    private uiLayer!: Container;
+    private overlayLayer!: Container;
 
-    noButtonTransform = signal('');
+    // Sprites & Objects
+    private snehal!: Sprite;
+    private apoorv!: Sprite;
+    private bouquet!: Sprite;
+    private dialogueBox!: Graphics;
+    private dialogueText!: Text;
+    private yesBtn!: Container;
+    private noBtn!: Container;
+    private endMenu!: Container;
 
-    readonly companionImage = computed(() => {
-        const companion = this.gameState.companion();
-        let mood = 'idle';
-        if (this.panelIndex() === 3) mood = 'shy'; // or special propose pose
-        if (this.showWin()) mood = 'happy';
-        return this.assetLoader.getCharacterImage(companion, mood); // asset loader handles fallback
-    });
+    // State
+    private dialogueIndex = 0;
+    private dialogueLines: string[] = [];
+
+    // Assets Map
+    private assets: Record<string, Texture> = {};
 
     constructor(
         private router: Router,
-        public gameState: GameState,
-        public assetLoader: AssetLoaderService
-    ) { }
-
-    ngOnInit() {
-        // Start ambiance?
+        public gameState: GameState
+    ) {
+        this.initDialogueLines();
     }
 
-    nextPanel() {
-        if (this.panelIndex() < 3) {
-            this.panelIndex.update(i => i + 1);
-            this.companionMessage.set(''); // Clear prev message
-        }
+    private initDialogueLines() {
+        const words = this.gameState.memoryWords().join(', ') || "warmth, depth, sunshine";
+
+        this.dialogueLines = [
+            "Explorer Snehal… you made it.",
+            "The sky looks extra soft tonight.",
+            "I hope the adventure was fun, because I’m genuinely proud of you.",
+            `And you chose: ${words}`,
+            "That’s you. And that’s only a small piece of what I see in you.",
+            "Never forget this: you are deeply loved.",
+            "You cleared the foggy forest. Promise me you’ll choose your peace first.",
+            "Because you matter to me the most.",
+            "You conquered the Vibe Detector.",
+            "I hope that clarity follows you, quietly and confidently, everywhere.",
+            "And I wanted to give you that bouquet again, virtual this time.",
+            "",
+            "Finally, I’ve been carrying something in my chest.",
+            "I never wanted loud love for days. I want steady love for years.",
+            "So here’s my real question…",
+            "Will you hold my hand, and be mine, forever?"
+        ];
     }
 
-    handleNo() {
-        const count = this.noClickCount();
+    async ngAfterViewInit() {
+        this.app = new Application();
 
-        if (count === 0) {
-            // Attempt 1: Shake
-            this.companionMessage.set("Nice try. You pressed the ‘I’m shy’ button. 🙈");
-            this.shakeButton();
-        } else if (count === 1) {
-            // Attempt 2: Run away
-            this.companionMessage.set("Okay calm down, I didn’t ask for your Netflix password. 😭");
-            this.noButtonTransform.set("translateX(150px) rotate(15deg)");
-        } else if (count === 2) {
-            // Attempt 3: Return as Yes
-            this.companionMessage.set("Good. Because I already informed the stars. 🌙✨");
-            this.noButtonTransform.set("translateX(0) rotate(0)");
+        await this.app.init({
+            resizeTo: window,
+            backgroundColor: 0x000000,
+            resolution: window.devicePixelRatio || 1,
+            autoDensity: true,
+        });
+
+        this.pixiContainer.nativeElement.appendChild(this.app.canvas);
+
+        await this.loadAssets();
+        this.setupScene();
+        this.renderBeat(0);
+        this.handleResize();
+    }
+
+    async loadAssets() {
+        // Direct absolute paths with cache bust
+        const t = Date.now();
+        const bgUrl = `/assets/bg_observatory.png?t=${t}`;
+        const snehalUrl = `/assets/snehal_happy.png?t=${t}`;
+        const apoorvUrl = `/assets/apoorv_proud.png?t=${t}`;
+        const kneelUrl = `/assets/apoorv_kneel_ring.png?t=${t}`;
+        const bouquetUrl = `/assets/bouquet_sunflower_rose.png?t=${t}`;
+        const endingUrl = `/assets/happily_ever_after.png?t=${t}`;
+
+        console.log("Loading assets from:", bgUrl);
+
+        try {
+            const bgTex = await Assets.load(bgUrl);
+            this.assets['bg'] = bgTex;
+            console.log("BG Loaded successfully", bgTex.width, bgTex.height);
+        } catch (e) { console.error("BG load failed", e); }
+
+        try { this.assets['snehal'] = await Assets.load(snehalUrl); } catch (e) { }
+        try { this.assets['apoorv_happy'] = await Assets.load(apoorvUrl); } catch (e) { }
+        try { this.assets['apoorv_kneel'] = await Assets.load(kneelUrl); } catch (e) { }
+        try { this.assets['bouquet'] = await Assets.load(bouquetUrl); } catch (e) { }
+        try { this.assets['ending'] = await Assets.load(endingUrl); } catch (e) { }
+    }
+
+    setupScene() {
+        this.bgLayer = new Container();
+        this.gameContainer = new Container();
+        this.charLayer = new Container();
+        this.uiLayer = new Container();
+        this.overlayLayer = new Container();
+
+        this.gameContainer.addChild(this.charLayer, this.uiLayer, this.overlayLayer);
+        this.app.stage.addChild(this.bgLayer, this.gameContainer);
+
+        // Background
+        if (this.assets['bg']) {
+            const bg = Sprite.from(this.assets['bg']);
+            bg.anchor.set(0.5);
+            this.bgLayer.addChild(bg);
         } else {
-            // It's effectively a YES now
-            this.handleYes();
-            return;
+            console.warn("Using Fallback BG (Red)");
+            const bg = new Graphics();
+            bg.rect(-50, -50, 100, 100);
+            bg.fill(0x550000);
+            this.bgLayer.addChild(bg);
         }
 
-        this.noClickCount.update(c => c + 1);
+        // Characters (Scaled specific to request)
+        // Snehal
+        if (this.assets['snehal']) {
+            this.snehal = Sprite.from(this.assets['snehal']);
+            const scale = Math.min(720 / this.snehal.texture.height * 0.45, 1);
+            this.snehal.scale.set(scale);
+        } else {
+            this.snehal = new Sprite(Texture.WHITE);
+            this.snehal.tint = 0xFF69B4;
+            this.snehal.width = 100; this.snehal.height = 200;
+        }
+        this.snehal.anchor.set(0.5, 1);
+        this.snehal.x = 1280 * 0.72;
+        this.snehal.y = 600; // Floor level
+        this.snehal.visible = false;
+        this.charLayer.addChild(this.snehal);
+
+        // Apoorv
+        if (this.assets['apoorv_happy']) {
+            this.apoorv = Sprite.from(this.assets['apoorv_happy']);
+            const scale = Math.min(720 / this.apoorv.texture.height * 0.45, 1);
+            this.apoorv.scale.set(scale);
+        } else {
+            this.apoorv = new Sprite(Texture.WHITE);
+            this.apoorv.tint = 0x87CEEB;
+            this.apoorv.width = 100; this.apoorv.height = 200;
+        }
+        this.apoorv.anchor.set(0.5, 1);
+        this.apoorv.x = 1280 * 0.28;
+        this.apoorv.y = 600; // Floor level
+        this.apoorv.visible = false;
+        this.charLayer.addChild(this.apoorv);
+
+        // Bouquet
+        if (this.assets['bouquet']) {
+            this.bouquet = Sprite.from(this.assets['bouquet']);
+            this.bouquet.scale.set(0.5);
+        } else {
+            this.bouquet = new Sprite(Texture.WHITE);
+            this.bouquet.tint = 0xFFD700;
+            this.bouquet.width = 80; this.bouquet.height = 80;
+        }
+        this.bouquet.anchor.set(0.5, 0.5);
+        this.bouquet.x = 1280 * 0.68;
+        this.bouquet.y = 720 * 0.50;
+        this.bouquet.visible = false;
+        this.uiLayer.addChild(this.bouquet);
+
+        // Dialogue Box
+        this.dialogueBox = new Graphics();
+        this.dialogueBox.roundRect(0, 0, 1280 * 0.88, 150, 20);
+        this.dialogueBox.fill({ color: 0xffffff, alpha: 0.9 });
+        this.dialogueBox.stroke({ width: 4, color: 0xFFC0CB });
+        this.dialogueBox.x = (1280 - (1280 * 0.88)) / 2;
+        this.dialogueBox.y = 720 * 0.76;
+        this.uiLayer.addChild(this.dialogueBox);
+
+        // Dialogue Text
+        const style = new TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 32,
+            fontStyle: 'italic',
+            fontWeight: 'bold',
+            fill: '#4a4a4a',
+            wordWrap: true,
+            wordWrapWidth: 1280 * 0.80,
+            align: 'center',
+            leading: 4
+        });
+
+        this.dialogueText = new Text({ text: '', style });
+        this.dialogueText.anchor.set(0.5, 0.5);
+        this.dialogueText.x = 1280 / 2;
+        this.dialogueText.y = this.dialogueBox.y + 75;
+        this.uiLayer.addChild(this.dialogueText);
+
+        // Interaction
+        const hitArea = new Graphics();
+        hitArea.rect(-5000, -5000, 10000, 10000);
+        hitArea.fill({ color: 0x000000, alpha: 0.0001 });
+        hitArea.eventMode = 'static';
+        hitArea.cursor = 'pointer';
+        hitArea.on('pointerdown', () => this.advanceDialogue());
+        this.bgLayer.addChild(hitArea);
+
+        this.createButtons();
     }
 
-    shakeButton() {
-        // Simple hack for now:
-        this.noButtonTransform.set("translateX(-10px)");
-        setTimeout(() => this.noButtonTransform.set("translateX(10px)"), 100);
-        setTimeout(() => this.noButtonTransform.set("translateX(-10px)"), 200);
-        setTimeout(() => this.noButtonTransform.set("translateX(0)"), 300);
+    createButtons() {
+        // Yes Button
+        this.yesBtn = new Container();
+        const yesBg = new Graphics();
+        yesBg.roundRect(0, 0, 200, 80, 40);
+        yesBg.fill(0xFF69B4);
+        const yesText = new Text({ text: 'YES ✨', style: { fontSize: 36, fill: 'white', fontWeight: 'bold' } });
+        yesText.anchor.set(0.5);
+        yesText.x = 100; yesText.y = 40;
+        this.yesBtn.addChild(yesBg, yesText);
+
+        this.yesBtn.x = 1280 / 2 - 250;
+        this.yesBtn.y = 500;
+        this.yesBtn.eventMode = 'static';
+        this.yesBtn.cursor = 'pointer';
+        this.yesBtn.visible = false;
+
+        this.yesBtn.on('pointerdown', (e) => {
+            e.stopPropagation();
+            this.handleYes();
+        });
+
+        // No Button
+        this.noBtn = new Container();
+        const noBg = new Graphics();
+        noBg.roundRect(0, 0, 200, 80, 40);
+        noBg.fill(0x808080);
+        const noText = new Text({ text: 'No 🙃', style: { fontSize: 36, fill: 'white', fontWeight: 'bold' } });
+        noText.anchor.set(0.5);
+        noText.x = 100; noText.y = 40;
+        this.noBtn.addChild(noBg, noText);
+
+        this.noBtn.x = 1280 / 2 + 50;
+        this.noBtn.y = 500;
+        this.noBtn.eventMode = 'static';
+        this.noBtn.visible = false;
+
+        this.app.ticker.add(() => {
+            if (!this.noBtn.visible) return;
+
+            const pointer = this.app.renderer.events.pointer;
+            const globalMouse = { x: pointer.x, y: pointer.y };
+            const localMouse = this.gameContainer.toLocal(globalMouse);
+
+            const btnCenterX = this.noBtn.x + 100;
+            const btnCenterY = this.noBtn.y + 40;
+
+            const dx = localMouse.x - btnCenterX;
+            const dy = localMouse.y - btnCenterY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            const triggerDistance = 150;
+
+            if (dist < triggerDistance) {
+                const angle = Math.atan2(dy, dx);
+                this.noBtn.x -= Math.cos(angle) * 10;
+                this.noBtn.y -= Math.sin(angle) * 10;
+                this.noBtn.x = Math.max(100, Math.min(1180, this.noBtn.x));
+                this.noBtn.y = Math.max(100, Math.min(600, this.noBtn.y));
+            } else {
+                const originX = 1280 / 2 + 50;
+                const originY = 500;
+                const distX = originX - this.noBtn.x;
+                const distY = originY - this.noBtn.y;
+                if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {
+                    this.noBtn.x += distX * 0.05;
+                    this.noBtn.y += distY * 0.05;
+                }
+            }
+        });
+
+        this.uiLayer.addChild(this.yesBtn, this.noBtn);
+    }
+
+    renderBeat(index: number) {
+        if (index >= this.dialogueLines.length) return;
+
+        const text = this.dialogueLines[index];
+        this.dialogueText.text = text;
+
+        this.dialogueText.alpha = 0;
+        const fadeIn = () => {
+            if (this.dialogueText.alpha < 1) {
+                this.dialogueText.alpha += 0.05;
+                requestAnimationFrame(fadeIn);
+            }
+        };
+        fadeIn();
+
+        if (index === 0) {
+            if (this.snehal) this.snehal.visible = true;
+        }
+
+        if (index === 1) {
+            if (this.apoorv) {
+                this.apoorv.visible = true;
+                this.apoorv.alpha = 0;
+                const fadeInChar = () => {
+                    this.apoorv.alpha += 0.05;
+                    if (this.apoorv.alpha < 1) requestAnimationFrame(fadeInChar);
+                };
+                fadeInChar();
+            }
+        }
+
+        if (index === 11) {
+            if (this.bouquet) this.bouquet.visible = true;
+        }
+
+        if (index === 15) {
+            if (this.apoorv) {
+                if (this.assets['apoorv_kneel']) {
+                    this.apoorv.texture = this.assets['apoorv_kneel'];
+                } else {
+                    if (this.apoorv instanceof Sprite && this.apoorv.texture === Texture.WHITE) {
+                        this.apoorv.height = 150;
+                    }
+                }
+                this.apoorv.y = 600 + 40; // Correction for kneeling
+                this.apoorv.x = 1280 * 0.40;
+            }
+
+            setTimeout(() => {
+                this.yesBtn.visible = true;
+                this.noBtn.visible = true;
+            }, 1000);
+        }
+    }
+
+    advanceDialogue() {
+        if (this.yesBtn.visible) return;
+
+        if (this.dialogueIndex < this.dialogueLines.length - 1) {
+            this.dialogueIndex++;
+            this.renderBeat(this.dialogueIndex);
+        }
     }
 
     handleYes() {
-        this.showWin.set(true);
+        this.yesBtn.visible = false;
+        this.noBtn.visible = false;
+        this.dialogueBox.visible = false;
+        this.dialogueText.visible = false;
+        this.bouquet.visible = false;
+
         this.launchConfetti();
+
+        let endingSprite: Sprite;
+        if (this.assets['ending']) {
+            endingSprite = Sprite.from(this.assets['ending']);
+        } else {
+            endingSprite = new Sprite(Texture.WHITE);
+            endingSprite.tint = 0xFF1493;
+            endingSprite.width = 400; endingSprite.height = 300;
+        }
+
+        endingSprite.anchor.set(0.5);
+        endingSprite.x = 1280 / 2;
+        endingSprite.y = 720 / 2;
+        endingSprite.scale.set(0.5);
+        this.overlayLayer.addChild(endingSprite);
+
+        let scale = 0.5;
+        const animate = () => {
+            if (scale < 1) {
+                scale += 0.02;
+                endingSprite.scale.set(scale);
+                requestAnimationFrame(animate);
+            }
+        };
+        animate();
+
+        setTimeout(() => this.showEndMenu(), 2000);
+    }
+
+    launchConfetti() {
+        const colors = [0xFF69B4, 0xFFD700, 0x00BFFF, 0xFF4500];
+        for (let i = 0; i < 100; i++) {
+            const conf = new Graphics();
+            conf.rect(0, 0, 10, 10);
+            conf.fill(colors[Math.floor(Math.random() * colors.length)]);
+            conf.x = Math.random() * 1280;
+            conf.y = -50 - Math.random() * 500;
+            const speed = 2 + Math.random() * 5;
+            const spin = (Math.random() - 0.5) * 0.2;
+
+            this.overlayLayer.addChild(conf);
+
+            this.app.ticker.add((ticker) => {
+                conf.y += speed;
+                conf.rotation += spin;
+                if (conf.y > 720) {
+                    // remove? 
+                }
+            });
+        }
+    }
+
+    showEndMenu() {
+        this.endMenu = new Container();
+
+        const replayBg = new Graphics();
+        replayBg.roundRect(0, 0, 250, 60, 30);
+        replayBg.fill(0xFFFFFF);
+        replayBg.stroke({ width: 2, color: 0x000000 });
+        const replayText = new Text({ text: 'Replay 🔄', style: { fontSize: 24 } });
+        replayText.anchor.set(0.5);
+        replayText.x = 125; replayText.y = 30;
+
+        const replayBtn = new Container();
+        replayBtn.addChild(replayBg, replayText);
+        replayBtn.x = 1280 / 2 - 260;
+        replayBtn.y = 600;
+        replayBtn.eventMode = 'static';
+        replayBtn.cursor = 'pointer';
+        replayBtn.on('pointerdown', () => this.replay());
+
+        const homeBg = new Graphics();
+        homeBg.roundRect(0, 0, 250, 60, 30);
+        homeBg.fill(0xFF69B4);
+        const homeText = new Text({ text: 'Portfolio 🏠', style: { fontSize: 24, fill: 'white' } });
+        homeText.anchor.set(0.5);
+        homeText.x = 125; homeText.y = 30;
+
+        const homeBtn = new Container();
+        homeBtn.addChild(homeBg, homeText);
+        homeBtn.x = 1280 / 2 + 10;
+        homeBtn.y = 600;
+        homeBtn.eventMode = 'static';
+        homeBtn.cursor = 'pointer';
+        homeBtn.on('pointerdown', () => this.goHome());
+
+        this.endMenu.addChild(replayBtn, homeBtn);
+        this.overlayLayer.addChild(this.endMenu);
     }
 
     replay() {
@@ -264,25 +475,48 @@ export class FinalCutsceneComponent implements OnInit {
         this.router.navigate(['/']);
     }
 
-    // Simple Confetti Implementation
-    launchConfetti() {
-        const duration = 3000;
-        const animationEnd = Date.now() + duration;
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+    @HostListener('window:resize')
+    handleResize() {
+        if (!this.app || !this.bgLayer) return;
 
-        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+        this.app.renderer.resize(window.innerWidth, window.innerHeight);
 
-        const interval: any = setInterval(function () {
-            const timeLeft = animationEnd - Date.now();
+        const screenW = this.app.screen.width;
+        const screenH = this.app.screen.height;
 
-            if (timeLeft <= 0) {
-                return clearInterval(interval);
+        // 1. Resize BG to COVER
+        const bg = this.bgLayer.children[0] as Sprite | Graphics;
+        if (bg) {
+            let bgW = 1280; let bgH = 720;
+            if (bg instanceof Sprite && bg.texture) {
+                bgW = bg.texture.width;
+                bgH = bg.texture.height;
+            } else {
+                bgW = 100; bgH = 100;
             }
 
-            const particleCount = 50 * (timeLeft / duration);
-            // since particles fall down, start a bit higher than random
-            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-        }, 250);
+            const scale = Math.max(screenW / bgW, screenH / bgH);
+            bg.scale.set(scale);
+            bg.x = screenW / 2;
+            bg.y = screenH / 2;
+        }
+
+        // 2. Resize GameContainer to CONTAIN
+        if (this.gameContainer) {
+            const targetW = 1280;
+            const targetH = 720;
+
+            const scale = Math.min(screenW / targetW, screenH / targetH);
+            this.gameContainer.scale.set(scale);
+
+            this.gameContainer.x = (screenW - (targetW * scale)) / 2;
+            this.gameContainer.y = (screenH - (targetH * scale)) / 2;
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.app) {
+            this.app.destroy(true, { children: true, texture: true });
+        }
     }
 }
