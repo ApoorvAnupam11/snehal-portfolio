@@ -14,7 +14,7 @@ import { LevelCompletionComponent } from '../level-completion/level-completion.c
       
       <!-- Background Image -->
       <div class="absolute inset-0 z-0 bg-cover bg-center" 
-           style="background-image: url('/assets/bg_fog_bridge.jpg');">
+           style="background-image: url('assets/bg_fog_bridge.jpg');">
       </div>
 
       <!-- Content (Under Fog) -->

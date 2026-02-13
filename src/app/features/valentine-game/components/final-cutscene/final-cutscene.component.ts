@@ -2,9 +2,11 @@ import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, HostListene
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameState } from '../../services/game-state';
+import { AssetLoaderService } from '../../services/asset-loader.service';
 import { Application, Assets, Container, Sprite, Text, Graphics, TextStyle, Texture } from 'pixi.js';
 
 @Component({
+    // ... (Metadata remains same, just ensuring import is there)
     selector: 'app-final-cutscene',
     standalone: true,
     imports: [CommonModule],
@@ -48,7 +50,8 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
 
     constructor(
         private router: Router,
-        public gameState: GameState
+        public gameState: GameState,
+        public assetLoader: AssetLoaderService
     ) {
     }
 
@@ -98,23 +101,27 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
     }
 
     async loadAssets() {
-        // Direct absolute paths with cache bust
+        // Direct absolute paths with cache bust, resolved via AssetLoader
         const t = Date.now();
-        const bgUrl = `/assets/bg_observatory.jpg?t=${t}`;
-        const snehalUrl = `/assets/snehal_happy.png?t=${t}`;
-        const snehalBouquetUrl = `/assets/snehal_holding_bouquet.png?t=${t}`;
 
-        const apoorvUrl = `/assets/apoorv_final.png?t=${t}`;
-        const proposalUrl = `/assets/proposal.png?t=${t}`;
-        const bouquetUrl = `/assets/bouquet_sunflower_rose.png?t=${t}`;
-        const endingUrl = `/assets/valentines_end.png?t=${t}`;
+        // Helper to add cache bust
+        const getUrl = (path: string) => `${this.assetLoader.get(path)}?t=${t}`;
 
-        console.log("Loading assets...");
+        const bgUrl = getUrl('bg_observatory.jpg');
+        const snehalUrl = getUrl('snehal_happy.png');
+        const snehalBouquetUrl = getUrl('snehal_holding_bouquet.png');
+
+        const apoorvUrl = getUrl('apoorv_final.png');
+        const proposalUrl = getUrl('proposal.png');
+        const bouquetUrl = getUrl('bouquet_sunflower_rose.png');
+        const endingUrl = getUrl('valentines_end.png');
+
+        console.log("Loading assets from:", bgUrl); // Diagnostic log
 
         try {
             const bgTex = await Assets.load(bgUrl);
             this.assets['bg'] = bgTex;
-        } catch (e) { }
+        } catch (e) { console.error("Failed to load bg", e); }
 
         try { this.assets['snehal'] = await Assets.load(snehalUrl); } catch (e) { }
         try { this.assets['snehal_bouquet'] = await Assets.load(snehalBouquetUrl); } catch (e) { }
@@ -122,7 +129,7 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
         try { this.assets['apoorv_happy'] = await Assets.load(apoorvUrl); } catch (e) { }
         try { this.assets['apoorv_kneel'] = await Assets.load(proposalUrl); } catch (e) { }
 
-        try { this.assets['bouquet'] = await Assets.load(bouquetUrl); } catch (e) { }
+        // try { this.assets['bouquet'] = await Assets.load(bouquetUrl); } catch (e) { }
         try { this.assets['ending'] = await Assets.load(endingUrl); } catch (e) { }
     }
 

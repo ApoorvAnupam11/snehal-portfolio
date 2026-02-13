@@ -4,22 +4,20 @@ import { Injectable } from '@angular/core';
     providedIn: 'root'
 })
 export class AssetLoaderService {
-    // Base URL for assets.
-    private readonly basePath = 'assets/';
+    // Base path relative to index.html (which respects base-href)
+    // We use document.baseURI to construct absolute URLs for PixiJS / loaders.
 
     get(filename: string): string {
-        return `${this.basePath}${filename}`;
+        // Ensure no leading slash to make it relative to base
+        const relPath = `assets/${filename.replace(/^\/+/, '')}`;
+        return new URL(relPath, document.baseURI).href;
     }
 
     getCharacterImage(name: string, mood: string): string {
-        // e.g., assets/snehal_soft.png
-        // If mood is 'idle', we might just have snehal_idle.png
-        // The file naming convention in assets seems to be name_mood.png
-        return `${this.basePath}${name.toLowerCase()}_${mood.toLowerCase()}.png`;
+        return this.get(`${name.toLowerCase()}_${mood.toLowerCase()}.png`);
     }
 
     getBackgroundImage(name: string): string {
-        // e.g., assets/bg_start.png
-        return `${this.basePath}bg_${name.toLowerCase()}.jpg`;
+        return this.get(`bg_${name.toLowerCase()}.jpg`);
     }
 }
