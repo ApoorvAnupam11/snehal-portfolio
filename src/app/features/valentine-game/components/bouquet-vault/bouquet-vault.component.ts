@@ -56,7 +56,7 @@ import { AssetLoaderService } from '../../services/asset-loader.service';
             <!-- Use viewport-based height to ensure it fits -->
             <div class="relative mb-2 shrink-0"> 
                 <div class="absolute inset-0 bg-white/50 blur-xl rounded-full scale-150 animate-pulse"></div>
-                <img src="/assets/icon_bouquet.png" 
+                <img src="assets/icon_bouquet.png" 
                      class="h-[35vh] md:h-[45vh] w-auto max-w-[90vw] relative z-10 filter drop-shadow-2xl object-contain transition-all duration-500">
             </div>
 
