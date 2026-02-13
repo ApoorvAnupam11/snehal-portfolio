@@ -30,7 +30,7 @@ import { LevelCompletionComponent } from '../level-completion/level-completion.c
                 <p class="text-2xl text-gray-700 mb-8 font-medium leading-relaxed text-center">
                     {{ questionParts().start }} 
                     <span class="border-b-4 border-pink-400 font-bold text-pink-600 px-2 inline-block min-w-[100px] text-center">
-                        {{ selectedOption() || '_____' }}
+                        {{ selectedOption() || '&nbsp;' }}
                     </span>
                     {{ questionParts().end }}
                 </p>
