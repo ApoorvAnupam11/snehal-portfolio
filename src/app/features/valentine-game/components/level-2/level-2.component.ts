@@ -28,11 +28,15 @@ import { LevelCompletionComponent } from '../level-completion/level-completion.c
                 <h2 class="text-3xl font-bold text-pink-600 mb-6 text-center">Clear the Mind Fog</h2>
 
                 <p class="text-2xl text-gray-700 mb-8 font-medium leading-relaxed text-center">
-                    "When I feel unsure, I will <span class="border-b-4 border-pink-400 font-bold text-pink-600 px-2 inline-block min-w-[100px] text-center">{{ selectedOption() || '&nbsp;' }}</span> for myself."
+                    {{ questionParts().start }} 
+                    <span class="border-b-4 border-pink-400 font-bold text-pink-600 px-2 inline-block min-w-[100px] text-center">
+                        {{ selectedOption() || '_____' }}
+                    </span>
+                    {{ questionParts().end }}
                 </p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <button *ngFor="let option of options" 
+                    <button *ngFor="let option of currentOptions()" 
                             (click)="selectOption(option)"
                             [disabled]="isLevelComplete()"
                             [class.bg-pink-500]="selectedOption() === option"
@@ -99,8 +103,53 @@ export class Level2Component implements AfterViewInit {
     feedbackMessage = signal<string>('');
     isLevelComplete = signal(false);
     showCompletion = signal(false);
+    isProcessing = false;
 
-    readonly options = ['Hide', 'Show Up', 'Run'];
+    currentQuestionIndex = signal(0);
+
+    readonly questions = [
+        {
+            text: "If your mind gets loud, I’ll bring you back to _____.",
+            options: ['peace', 'certainty', 'control'],
+            correct: 'peace'
+        },
+        {
+            text: "Even on messy days, my love stays _____.",
+            options: ['steady', 'intense', 'protective'],
+            correct: 'steady'
+        },
+        {
+            text: "You don’t need to earn love. You deserve it _____.",
+            options: ['as you are', 'when you grow', 'when you try'],
+            correct: 'as you are'
+        },
+        {
+            text: "When you doubt yourself, I’ll remind you what’s _____.",
+            options: ['real', 'possible', 'important'],
+            correct: 'real'
+        },
+        {
+            text: "If something feels off, you’re allowed to choose _____.",
+            options: ['distance', 'patience', 'understanding'],
+            correct: 'distance'
+        },
+        {
+            text: "No matter what, you are _____.",
+            options: ['loved', 'valued', 'chosen'],
+            correct: 'loved'
+        }
+    ];
+
+    currentQuestion = computed(() => this.questions[this.currentQuestionIndex()]);
+
+    // Split text for template rendering: "Start " + [Blank] + " End"
+    questionParts = computed(() => {
+        const text = this.currentQuestion().text;
+        const parts = text.split('_____');
+        return { start: parts[0], end: parts[1] || '' };
+    });
+
+    currentOptions = computed(() => this.currentQuestion().options);
 
     private ctx!: CanvasRenderingContext2D;
     private isDrawing = false;
@@ -240,16 +289,37 @@ export class Level2Component implements AfterViewInit {
     }
 
     selectOption(option: string) {
-        if (this.isLevelComplete()) return;
+        if (this.isLevelComplete() || this.isProcessing) return;
 
+        this.isProcessing = true;
         this.selectedOption.set(option);
 
-        if (option === 'Show Up') {
-            this.handleWin();
+        const currentQ = this.currentQuestion();
+
+        if (option === currentQ.correct) {
+            // Correct
+            if (this.currentQuestionIndex() < this.questions.length - 1) {
+                // Next Question
+                setTimeout(() => {
+                    this.selectedOption.set(null);
+                    this.currentQuestionIndex.update(i => i + 1);
+                    this.isProcessing = false;
+                }, 1000);
+            } else {
+                // All Correct -> Win
+                setTimeout(() => {
+                    this.handleWin();
+                }, 1000);
+            }
         } else {
-            this.gameState.decreaseLife(); // Deduct life on wrong choice
-            this.feedbackMessage.set('Try again... that creates distance.');
-            setTimeout(() => this.feedbackMessage.set(''), 2000);
+            // Wrong
+            this.gameState.decreaseLife();
+            this.feedbackMessage.set('Try again... that feels off.');
+            setTimeout(() => {
+                this.feedbackMessage.set('');
+                this.selectedOption.set(null);
+                this.isProcessing = false;
+            }, 1000);
         }
     }
 

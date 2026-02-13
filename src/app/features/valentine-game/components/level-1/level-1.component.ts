@@ -36,10 +36,10 @@ export class Level1Component implements OnInit, OnDestroy {
   // Level Starter State
   showIntro = signal(true);
   readonly introDialogues = [
-    "Explorer Snehal… welcome to your Valentine Quest. 🌙",
-    "I packed snacks, sparkles, and a little bit of courage. 🧸✨",
-    "Your mission: collect three artifacts… and reach the Observatory. 🔭✨",
-    "Figure out how to earn each artifact. No spoilers. 😼✨",
+    "Explorer Snehal… welcome to your Valentine Quest🌙",
+    "I packed snacks🍫, paper stars 🌟, and a little bit of courage✨",
+    "Your mission: collect three artifacts… and reach the Observatory. 🔭",
+    "Figure out how to earn each artifact. No spoilers. 😼",
     "Let’s make a tiny memory. 💛"
   ];
 

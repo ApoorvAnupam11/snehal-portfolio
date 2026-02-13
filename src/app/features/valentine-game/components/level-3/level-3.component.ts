@@ -117,18 +117,41 @@ interface Card {
   `]
 })
 export class Level3Component implements OnInit {
-    cards: Card[] = [
-        { id: 1, text: "You're actually really smart.", category: 'Red Flag' }, // Negging
-        { id: 2, text: "I love how passionate you are.", category: 'Friendly' },
-        { id: 3, text: "Your eyes distract me from working.", category: 'Flirty' },
-        { id: 4, text: "Why are you wearing that?", category: 'Red Flag' },
-        { id: 5, text: "Thanks for always being there.", category: 'Friendly' },
-        { id: 6, text: "Is it hot in here or is it just you?", category: 'Flirty' },
-        { id: 7, text: "You're too sensitive.", category: 'Red Flag' },
-        { id: 8, text: "We make a great team.", category: 'Friendly' }
+    cards: Card[] = [];
+
+    // Full pool of statements
+    readonly allCards: Omit<Card, 'id'>[] = [
+        // Red Flags
+        { text: "You're actually really smart.", category: 'Red Flag' }, // Negging
+        { text: "Why are you wearing that?", category: 'Red Flag' },
+        { text: "You're too sensitive.", category: 'Red Flag' },
+        { text: "If you don’t do what I want, I’ll stop talking to you.", category: 'Red Flag' },
+        { text: "If you loved me, you wouldn’t talk to them.", category: 'Red Flag' },
+        { text: "Reply in 2 minutes or I’m upset.", category: 'Red Flag' },
+        { text: "Let me check your phone once. Just to be sure.", category: 'Red Flag' },
+        { text: "If you go out, keep your location on.", category: 'Red Flag' },
+
+        // Friendly
+        { text: "I love how passionate you are.", category: 'Friendly' },
+        { text: "Thanks for always being there.", category: 'Friendly' },
+        { text: "We make a great team.", category: 'Friendly' },
+        { text: "Proud of you. You did well today.", category: 'Friendly' },
+        { text: "Send me the notes when you’re free.", category: 'Friendly' },
+        { text: "Good luck for tomorrow. You’ve got this.", category: 'Friendly' },
+        { text: "That was funny. You always make people laugh.", category: 'Friendly' },
+        { text: "How’s your day going?", category: 'Friendly' },
+
+        // Flirty
+        { text: "Your eyes distract me from working.", category: 'Flirty' },
+        { text: "Is it hot in here or is it just you?", category: 'Flirty' },
+        { text: "You looked really cute today, not even kidding.", category: 'Flirty' },
+        { text: "Okay wait… why are you actually kind of adorable?", category: 'Flirty' },
+        { text: "I was thinking about you. Don’t ask why.", category: 'Flirty' },
+        { text: "If you’re free later, I’ll steal you for a bit.", category: 'Flirty' },
+        { text: "Send a selfie. I want to see you.", category: 'Flirty' }
     ];
 
-    totalCards = this.cards.length;
+    totalCards = 8;
     currentIndex = 0;
 
     currentCard = signal<Card | null>(null);
@@ -170,6 +193,17 @@ export class Level3Component implements OnInit {
 
     ngOnInit() {
         this.gameState.currentLevel.set(3);
+
+        // Shuffle and select 8 random cards
+        const shuffled = [...this.allCards].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 8);
+
+        this.cards = selected.map((card, index) => ({
+            ...card,
+            id: index + 1
+        }));
+
+        this.totalCards = this.cards.length;
         this.loadNextCard();
     }
 
