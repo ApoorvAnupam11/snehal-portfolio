@@ -10,7 +10,7 @@ import { GameState } from '../../services/game-state';
     <div *ngIf="gameState.currentLevel() >= 1" class="pointer-events-none">
       
       <!-- Top Center Container (Mini-map & Inventory Items) -->
-      <div class="fixed top-2 left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center gap-2 w-full max-w-sm px-4">
+      <div class="fixed top-2 left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center gap-2 w-full max-w-sm px-4 scale-75 origin-top">
         
         <!-- Mini-map -->
         <div *ngIf="gameState.currentLevel() > 0" 
@@ -40,7 +40,7 @@ import { GameState } from '../../services/game-state';
       </div>
 
       <!-- Bottom Center Container (Main Stats: Level, Tokens, Toggle) -->
-      <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center gap-2 w-full max-w-sm px-4">
+      <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center gap-2 w-full max-w-sm px-4 scale-75 origin-bottom">
         <div class="bg-white/95 backdrop-blur-md rounded-full px-4 py-2 shadow-xl border-2 border-pink-200 flex items-center justify-between gap-4 w-full pointer-events-auto relative">
           
           <!-- Stats Group (Centered) -->

@@ -15,6 +15,7 @@ export class GameState {
   readonly companion = signal<'snehal' | 'apoorv'>('snehal'); // Default to Snehal
   readonly inventory = signal<Set<string>>(new Set());
   readonly currentLevel = signal<number>(0);
+  readonly showHud = signal<boolean>(true);
 
   // Level 1 Data
   readonly memoryWords = signal<string[]>([]);
@@ -66,5 +67,6 @@ export class GameState {
     this.inventory.set(new Set());
     this.currentLevel.set(0);
     this.memoryWords.set([]);
+    this.showHud.set(true);
   }
 }

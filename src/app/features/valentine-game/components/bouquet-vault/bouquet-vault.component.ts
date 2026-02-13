@@ -13,7 +13,7 @@ import { AssetLoaderService } from '../../services/asset-loader.service';
       
       <!-- Background -->
       <div class="absolute inset-0 z-0 bg-center bg-no-repeat" 
-           style="background-image: url('/assets/bg_bouquet.png'); background-size: 100% 100%;">
+           style="background-image: url('/assets/bg_bouquet.jpg'); background-size: 100% 100%;">
            <!-- Overlay for readability if needed -->
            <div class="absolute inset-0 bg-black/30"></div>
       </div>

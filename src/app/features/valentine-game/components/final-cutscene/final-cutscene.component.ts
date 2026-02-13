@@ -50,17 +50,18 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
         private router: Router,
         public gameState: GameState
     ) {
-        this.initDialogueLines();
     }
 
     private initDialogueLines() {
-        const words = this.gameState.memoryWords().join(', ') || "warmth, depth, sunshine";
+        const words = this.gameState.memoryWords();
+        console.log("FinalCutscene Words:", words);
+        const joinedWords = words.join(', ') || "warmth, depth, sunshine";
 
         this.dialogueLines = [
             "Explorer Snehal… you made it.",
             "The sky looks extra soft tonight.",
             "I hope the adventure was fun, because I’m genuinely proud of you.",
-            `And you chose: ${words}`,
+            `And you chose: ${joinedWords}`,
             "That’s you. And that’s only a small piece of what I see in you.",
             "Never forget this: you are deeply loved.",
             "You cleared the foggy forest. Promise me you’ll choose your peace first.",
@@ -77,6 +78,8 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
     }
 
     async ngAfterViewInit() {
+        this.initDialogueLines();
+        this.gameState.showHud.set(false);
         this.app = new Application();
 
         await this.app.init({
@@ -97,24 +100,28 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
     async loadAssets() {
         // Direct absolute paths with cache bust
         const t = Date.now();
-        const bgUrl = `/assets/bg_observatory.png?t=${t}`;
+        const bgUrl = `/assets/bg_observatory.jpg?t=${t}`;
         const snehalUrl = `/assets/snehal_happy.png?t=${t}`;
-        const apoorvUrl = `/assets/apoorv_proud.png?t=${t}`;
-        const kneelUrl = `/assets/apoorv_kneel_ring.png?t=${t}`;
-        const bouquetUrl = `/assets/bouquet_sunflower_rose.png?t=${t}`;
-        const endingUrl = `/assets/happily_ever_after.png?t=${t}`;
+        const snehalBouquetUrl = `/assets/snehal_holding_bouquet.png?t=${t}`;
 
-        console.log("Loading assets from:", bgUrl);
+        const apoorvUrl = `/assets/apoorv_final.png?t=${t}`;
+        const proposalUrl = `/assets/proposal.png?t=${t}`;
+        const bouquetUrl = `/assets/bouquet_sunflower_rose.png?t=${t}`;
+        const endingUrl = `/assets/valentines_end.png?t=${t}`;
+
+        console.log("Loading assets...");
 
         try {
             const bgTex = await Assets.load(bgUrl);
             this.assets['bg'] = bgTex;
-            console.log("BG Loaded successfully", bgTex.width, bgTex.height);
-        } catch (e) { console.error("BG load failed", e); }
+        } catch (e) { }
 
         try { this.assets['snehal'] = await Assets.load(snehalUrl); } catch (e) { }
+        try { this.assets['snehal_bouquet'] = await Assets.load(snehalBouquetUrl); } catch (e) { }
+
         try { this.assets['apoorv_happy'] = await Assets.load(apoorvUrl); } catch (e) { }
-        try { this.assets['apoorv_kneel'] = await Assets.load(kneelUrl); } catch (e) { }
+        try { this.assets['apoorv_kneel'] = await Assets.load(proposalUrl); } catch (e) { }
+
         try { this.assets['bouquet'] = await Assets.load(bouquetUrl); } catch (e) { }
         try { this.assets['ending'] = await Assets.load(endingUrl); } catch (e) { }
     }
@@ -162,7 +169,10 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
         // Apoorv
         if (this.assets['apoorv_happy']) {
             this.apoorv = Sprite.from(this.assets['apoorv_happy']);
-            const scale = Math.min(720 / this.apoorv.texture.height * 0.45, 1);
+            const h = this.apoorv.texture.height;
+            const baseH = 720 * 0.45;
+            const targetH = baseH + 30; // 30px bigger as requested
+            const scale = Math.min(targetH / h, 1.5); // Cap scale reasonable
             this.apoorv.scale.set(scale);
         } else {
             this.apoorv = new Sprite(Texture.WHITE);
@@ -234,15 +244,31 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
         // Yes Button
         this.yesBtn = new Container();
         const yesBg = new Graphics();
-        yesBg.roundRect(0, 0, 200, 80, 40);
-        yesBg.fill(0xFF69B4);
-        const yesText = new Text({ text: 'YES ✨', style: { fontSize: 36, fill: 'white', fontWeight: 'bold' } });
+        yesBg.roundRect(0, 0, 250, 80, 40);
+        yesBg.fill(0xE91E63); // Pink
+        yesBg.stroke({ width: 4, color: 0xFFFFFF });
+
+        const yesStyle = new TextStyle({
+            fontFamily: 'Georgia',
+            fontSize: 36,
+            fontWeight: 'bold',
+            fontStyle: 'italic',
+            fill: 'white',
+            dropShadow: {
+                color: '#000000',
+                blur: 4,
+                angle: Math.PI / 6,
+                distance: 2,
+            },
+        });
+
+        const yesText = new Text({ text: 'Yes, I will', style: yesStyle });
         yesText.anchor.set(0.5);
-        yesText.x = 100; yesText.y = 40;
+        yesText.x = 125; yesText.y = 40;
         this.yesBtn.addChild(yesBg, yesText);
 
-        this.yesBtn.x = 1280 / 2 - 250;
-        this.yesBtn.y = 500;
+        this.yesBtn.x = 1280 / 2 - 200; // Adjusted for larger size
+        this.yesBtn.y = 520;
         this.yesBtn.eventMode = 'static';
         this.yesBtn.cursor = 'pointer';
         this.yesBtn.visible = false;
@@ -255,15 +281,23 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
         // No Button
         this.noBtn = new Container();
         const noBg = new Graphics();
-        noBg.roundRect(0, 0, 200, 80, 40);
+        noBg.roundRect(0, 0, 150, 60, 30);
         noBg.fill(0x808080);
-        const noText = new Text({ text: 'No 🙃', style: { fontSize: 36, fill: 'white', fontWeight: 'bold' } });
+
+        const noStyle = new TextStyle({
+            fontFamily: 'Georgia',
+            fontSize: 28,
+            fontStyle: 'italic',
+            fill: 'white'
+        });
+
+        const noText = new Text({ text: 'No', style: noStyle });
         noText.anchor.set(0.5);
-        noText.x = 100; noText.y = 40;
+        noText.x = 75; noText.y = 30;
         this.noBtn.addChild(noBg, noText);
 
-        this.noBtn.x = 1280 / 2 + 50;
-        this.noBtn.y = 500;
+        this.noBtn.x = 1280 / 2 + 150;
+        this.noBtn.y = 530;
         this.noBtn.eventMode = 'static';
         this.noBtn.visible = false;
 
@@ -274,30 +308,24 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
             const globalMouse = { x: pointer.x, y: pointer.y };
             const localMouse = this.gameContainer.toLocal(globalMouse);
 
-            const btnCenterX = this.noBtn.x + 100;
-            const btnCenterY = this.noBtn.y + 40;
+            const btnCenterX = this.noBtn.x + 75;
+            const btnCenterY = this.noBtn.y + 30;
 
             const dx = localMouse.x - btnCenterX;
             const dy = localMouse.y - btnCenterY;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            const triggerDistance = 150;
+            const triggerDistance = 100; // Only move when cursor lands on it
 
             if (dist < triggerDistance) {
                 const angle = Math.atan2(dy, dx);
-                this.noBtn.x -= Math.cos(angle) * 10;
-                this.noBtn.y -= Math.sin(angle) * 10;
-                this.noBtn.x = Math.max(100, Math.min(1180, this.noBtn.x));
-                this.noBtn.y = Math.max(100, Math.min(600, this.noBtn.y));
-            } else {
-                const originX = 1280 / 2 + 50;
-                const originY = 500;
-                const distX = originX - this.noBtn.x;
-                const distY = originY - this.noBtn.y;
-                if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {
-                    this.noBtn.x += distX * 0.05;
-                    this.noBtn.y += distY * 0.05;
-                }
+                // Move away smoothly
+                this.noBtn.x -= Math.cos(angle) * 8;
+                this.noBtn.y -= Math.sin(angle) * 8;
+
+                // Keep within reasonable bounds so it doesn't vanish instantly
+                this.noBtn.x = Math.max(50, Math.min(1230, this.noBtn.x));
+                this.noBtn.y = Math.max(50, Math.min(670, this.noBtn.y));
             }
         });
 
@@ -336,10 +364,14 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
         }
 
         if (index === 11) {
-            if (this.bouquet) this.bouquet.visible = true;
+            // Beat 11: Snehal receives bouquet - Swap texture immediately, no standalone bouquet
+            if (this.assets['snehal_bouquet']) {
+                this.snehal.texture = this.assets['snehal_bouquet'];
+            }
         }
 
         if (index === 15) {
+            // Proposal Beat
             if (this.apoorv) {
                 if (this.assets['apoorv_kneel']) {
                     this.apoorv.texture = this.assets['apoorv_kneel'];
@@ -348,9 +380,17 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
                         this.apoorv.height = 150;
                     }
                 }
-                this.apoorv.y = 600 + 40; // Correction for kneeling
-                this.apoorv.x = 1280 * 0.40;
+
+                // Centered and Original Size
+                this.apoorv.anchor.set(0.5, 1);
+                this.apoorv.x = 1280 / 2;
+                this.apoorv.y = 600 + 40;
+
+                this.apoorv.scale.set(1);
             }
+
+            // "Only that to be on screen" - Hide Snehal for proposal focus
+            if (this.snehal) this.snehal.visible = false;
 
             setTimeout(() => {
                 this.yesBtn.visible = true;
@@ -371,9 +411,13 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
     handleYes() {
         this.yesBtn.visible = false;
         this.noBtn.visible = false;
+
+        // Hide all previous story elements
         this.dialogueBox.visible = false;
         this.dialogueText.visible = false;
-        this.bouquet.visible = false;
+        this.bgLayer.visible = false;
+        this.charLayer.visible = false;
+        if (this.bouquet) this.bouquet.visible = false;
 
         this.launchConfetti();
 
@@ -383,26 +427,33 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
         } else {
             endingSprite = new Sprite(Texture.WHITE);
             endingSprite.tint = 0xFF1493;
-            endingSprite.width = 400; endingSprite.height = 300;
+            endingSprite.width = 1280; endingSprite.height = 720;
         }
 
         endingSprite.anchor.set(0.5);
         endingSprite.x = 1280 / 2;
         endingSprite.y = 720 / 2;
-        endingSprite.scale.set(0.5);
+
+        // Scale to cover or contain? "Fits nicely in view". 
+        // Likely Contain.
+        const scale = Math.min(1280 / endingSprite.texture.width, 720 / endingSprite.texture.height);
+        endingSprite.scale.set(scale * 0.8); // Start smaller
+
         this.overlayLayer.addChild(endingSprite);
 
-        let scale = 0.5;
+        // Gentle zoom
+        let s = scale * 0.8;
+        const targetS = scale;
         const animate = () => {
-            if (scale < 1) {
-                scale += 0.02;
-                endingSprite.scale.set(scale);
+            if (s < targetS) {
+                s += 0.005;
+                endingSprite.scale.set(s);
                 requestAnimationFrame(animate);
             }
         };
         animate();
 
-        setTimeout(() => this.showEndMenu(), 2000);
+        setTimeout(() => this.showEndMenu(), 1500);
     }
 
     launchConfetti() {
@@ -422,7 +473,8 @@ export class FinalCutsceneComponent implements AfterViewInit, OnDestroy {
                 conf.y += speed;
                 conf.rotation += spin;
                 if (conf.y > 720) {
-                    // remove? 
+                    conf.y = -10;
+                    conf.x = Math.random() * 1280;
                 }
             });
         }

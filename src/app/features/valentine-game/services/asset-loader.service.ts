@@ -20,6 +20,6 @@ export class AssetLoaderService {
 
     getBackgroundImage(name: string): string {
         // e.g., assets/bg_start.png
-        return `${this.basePath}bg_${name.toLowerCase()}.png`;
+        return `${this.basePath}bg_${name.toLowerCase()}.jpg`;
     }
 }

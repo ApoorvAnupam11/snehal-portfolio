@@ -20,7 +20,7 @@ interface Card {
       
       <!-- Background -->
       <div class="absolute inset-0 z-0 bg-cover bg-center" 
-           style="background-image: url('/assets/bg_detector.png');">
+           style="background-image: url('/assets/bg_detector.jpg');">
       </div>
 
       <!-- Header (Removed as per request) -->
