@@ -9,5 +9,9 @@ export const routes: Routes = [
         path: 'valentine',
         loadChildren: () => import('./features/valentine-game/valentine-game.module').then(m => m.ValentineGameModule)
     },
+    {
+        path: 'birthday',
+        loadChildren: () => import('./features/birthday/birthday.routes').then(m => m.routes)
+    },
     { path: '**', redirectTo: '' }
 ];

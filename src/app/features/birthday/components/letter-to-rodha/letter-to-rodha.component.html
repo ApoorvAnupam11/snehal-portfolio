@@ -1,0 +1,110 @@
+<div class="letter-layout min-h-screen flex flex-col lg:flex-row justify-center p-4 sm:p-8 lg:p-12 gap-8 lg:gap-16 relative overflow-hidden">
+  
+  <!-- Back relative route -->
+  <div class="fixed top-6 left-6 z-50">
+      <a routerLink="/birthday" class="flex items-center gap-2 text-stone-600 hover:text-stone-900 transition-colors uppercase text-xs tracking-[0.2em] font-medium group bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+          <span class="block transition-transform group-hover:-translate-x-1">&larr;</span> Back
+      </a>
+  </div>
+
+  <!-- Left Side Image (Polaroid) -->
+  <aside class="hidden lg:flex flex-col justify-between pb-12 w-1/4 max-w-xs shrink-0 items-end pt-12 z-10">
+    <ng-container *ngFor="let memory of evenImages; let i = index">
+      <div class="memory-card relative" [style.transform]="i % 2 === 0 ? 'rotate(-3deg)' : 'rotate(2deg)'">
+        <div class="polaroid cursor-pointer group">
+           <!-- Image Area -->
+           <div class="w-56 h-56 bg-stone-200 overflow-hidden relative">
+             <img *ngIf="memory.url" [src]="memory.url" class="w-full h-full object-cover" />
+             <div *ngIf="!memory.url" class="absolute inset-0 bg-stone-200 flex items-center justify-center">
+               <span class="handwritten text-stone-400 opacity-50">Photo attached</span>
+             </div>
+             <!-- Hover Reveal overlay -->
+             <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <p class="handwritten !text-white text-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{{ memory.memory }}</p>
+             </div>
+           </div>
+        </div>
+      </div>
+    </ng-container>
+  </aside>
+
+  <!-- Center Letter Area (Physical Paper) -->
+  <main class="w-full lg:w-1/2 max-w-2xl paper-letter flex flex-col p-8 sm:p-14 lg:p-20 z-10 animate-fade-in mt-20 lg:mt-6">
+    
+    <!-- Paper decorations -->
+    <div class="absolute top-0 left-0 w-full h-8 overflow-hidden opacity-30 select-none pointer-events-none">
+       <!-- tape shape -->
+       <div class="absolute top-[-10px] left-1/2 -translate-x-1/2 w-32 h-8 bg-black/10 rotate-1 backdrop-blur-sm shadow-sm" style="clip-path: polygon(2% 0%, 98% 0%, 100% 100%, 0% 100%);"></div>
+    </div>
+
+    <!-- Date placement in right corner like a real letter -->
+    <div class="text-right mb-8">
+      <p class="handwritten">{{ data.date }}</p>
+    </div>
+
+    <header class="text-center mb-10">
+      <h1 class="handwritten-bold text-5xl sm:text-6xl tracking-tight mb-2">{{ data.title }}</h1>
+      <div class="w-24 h-[1px] bg-stone-300 mx-auto mt-4"></div>
+    </header>
+
+    <div class="letter-body space-y-6 flex-1 text-justify">
+      <p class="handwritten" *ngFor="let paragraph of data.paragraphs">{{ paragraph }}</p>
+    </div>
+
+    <footer class="mt-16 pt-8 flex justify-end">
+      <div class="text-right">
+        <p class="handwritten-bold text-3xl whitespace-pre-line">{{ data.signOff }}</p>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Right Side Image (Polaroid) -->
+  <aside class="hidden lg:flex flex-col justify-between pb-12 w-1/4 max-w-xs shrink-0 items-start pt-48 z-10">
+    <ng-container *ngFor="let memory of oddImages; let i = index">
+      <div class="memory-card relative" [style.transform]="i % 2 === 0 ? 'rotate(2deg)' : 'rotate(-1deg)'">
+        <div class="polaroid cursor-pointer group">
+           <!-- Image Area -->
+           <div class="w-56 h-56 bg-stone-200 overflow-hidden relative">
+             <img *ngIf="memory.url" [src]="memory.url" class="w-full h-full object-cover" />
+             <div *ngIf="!memory.url" class="absolute inset-0 bg-stone-200 flex items-center justify-center">
+               <span class="handwritten text-stone-400 opacity-50">Photo attached</span>
+             </div>
+             <!-- Hover Reveal overlay -->
+             <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <p class="handwritten !text-white text-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{{ memory.memory }}</p>
+             </div>
+           </div>
+        </div>
+      </div>
+    </ng-container>
+  </aside>
+
+  <!-- Mobile Only Memory Stack -->
+  <div class="lg:hidden w-full max-w-2xl mx-auto flex flex-col items-center gap-12 mt-16 mb-16 z-10">
+    <div class="flex items-center gap-4 w-full justify-center">
+      <div class="h-[1px] bg-stone-300 w-16"></div>
+      <h3 class="handwritten text-stone-500 text-2xl">Attached Memories</h3>
+      <div class="h-[1px] bg-stone-300 w-16"></div>
+    </div>
+    
+    <div *ngFor="let memory of data.images; let i = index">
+      <!-- Alternate tilts for mobile Polaroids -->
+      <div class="polaroid mx-auto" [style.transform]="i % 2 === 0 ? 'rotate(-2deg)' : 'rotate(3deg)'">
+         <div (click)="toggleMemory(i)" class="w-64 h-64 bg-stone-200 overflow-hidden relative cursor-pointer group">
+           <img *ngIf="memory.url" [src]="memory.url" class="w-full h-full object-cover transition-opacity duration-500" [class.opacity-30]="activeMemoryIndex === i" />
+           <div *ngIf="!memory.url" class="w-full h-full bg-stone-200 flex items-center justify-center transition-opacity duration-500" [class.opacity-30]="activeMemoryIndex === i">
+                <span class="handwritten text-stone-400 opacity-50 text-xl">Tap to turn over</span>
+           </div>
+           <!-- Tap to Reveal Content (Mobile) -->
+           <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 bg-black/60" 
+                [class.opacity-0]="activeMemoryIndex !== i" 
+                [class.opacity-100]="activeMemoryIndex === i"
+                [class.pointer-events-none]="true">
+               <p class="handwritten text-3xl !text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{{ memory.memory }}</p>
+           </div>
+         </div>
+      </div>
+    </div>
+  </div>
+
+</div>

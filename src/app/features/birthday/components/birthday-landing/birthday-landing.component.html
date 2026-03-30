@@ -1,0 +1,57 @@
+<div class="landing-container relative min-h-screen flex items-center justify-center p-6 sm:p-12 overflow-hidden selection:bg-rose-200" style="background-image: url('assets/birthday_background.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+  
+  <!-- Falling Confetti Overlay -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-20">
+    <div *ngFor="let c of confettiArray" 
+         class="absolute top-[-20px] rounded-sm confetti-piece opacity-90 shadow-sm"
+         [style.left]="c.left"
+         [style.backgroundColor]="c.color"
+         [style.width.px]="12 * c.size"
+         [style.height.px]="20 * c.size"
+         [style.animationDuration]="c.duration"
+         [style.animationDelay]="c.delay"
+         [style.transform]="'rotate(' + c.rotation + ')'">
+    </div>
+  </div>
+
+  <main class="relative z-10 text-center max-w-3xl flex flex-col items-center gap-12 animate-fade-in-up mt-auto mb-16">
+    <!-- Actions Box -->
+    <div class="flex flex-col sm:flex-row gap-6 mt-8 w-full max-w-2xl justify-center items-stretch">
+      
+      <!-- Option 1: The Letter (Primary Action) -->
+      <a routerLink="letter" class="action-card group flex-1">
+        <div class="card-content">
+          <div class="icon-circle shadow-rose-200 shadow-xl group-hover:scale-110 transition-transform duration-500 bg-rose-100 text-rose-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+          </div>
+          <span class="card-label mt-6 block font-serif text-xl text-stone-800 font-medium group-hover:text-rose-600 transition-colors">
+            {{ data.letterButtonLabel }}
+          </span>
+          <span class="card-desc text-stone-500 text-sm font-sans tracking-wide uppercase mt-2 block opacity-70">
+            Start here
+          </span>
+        </div>
+      </a>
+
+      <!-- Option 2: The Call -->
+      <a [href]="data.meetUrl" target="_blank" rel="noopener noreferrer" class="action-card group flex-1">
+        <div class="card-content">
+          <div class="icon-circle shadow-stone-200 shadow-xl group-hover:scale-110 transition-transform duration-500 bg-white text-stone-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 21v-9.75M3 11.25h18m-18 0v-2.25c0-.83.67-1.5 1.5-1.5h4.8c.19 0 .37-.02.55-.06.77-.18 1.4-.76 1.6-1.54A2.24 2.24 0 0 1 12 3.75c1.13 0 2.14.82 2.3 1.95.2.78.83 1.36 1.6 1.54.18.04.36.06.55.06h4.8c.83 0 1.5.67 1.5 1.5v2.25z" />
+            </svg>
+          </div>
+          <span class="card-label mt-6 block font-serif text-xl text-stone-800 font-medium group-hover:text-stone-900 transition-colors">
+            {{ data.callButtonLabel }}
+          </span>
+          <span class="card-desc text-stone-500 text-sm font-sans tracking-wide uppercase mt-2 block opacity-70">
+            After the letter
+          </span>
+        </div>
+      </a>
+
+    </div>
+  </main>
+</div>

@@ -5,6 +5,7 @@ import { KnowledgeHubComponent } from '../knowledge-hub/knowledge-hub.component'
 import { ProjectsComponent } from '../projects/projects.component';
 import { ResourcesComponent } from '../resources/resources.component';
 import { ContactComponent } from '../contact/contact.component';
+import { BirthdayPopupComponent } from '../../features/birthday/components/birthday-popup/birthday-popup.component';
 
 @Component({
     selector: 'app-home-layout',
@@ -15,7 +16,8 @@ import { ContactComponent } from '../contact/contact.component';
         KnowledgeHubComponent,
         ProjectsComponent,
         ResourcesComponent,
-        ContactComponent
+        ContactComponent,
+        BirthdayPopupComponent
     ],
     templateUrl: './home-layout.component.html',
     styleUrls: ['./home-layout.component.css']

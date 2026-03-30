@@ -1,0 +1,32 @@
+.birthday-popup-container {
+  @apply fixed bottom-6 left-6 z-50 cursor-pointer;
+  animation: float 4s ease-in-out infinite;
+}
+
+.popup-bubble {
+  @apply flex items-center gap-3 px-4 py-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_4px_20px_rgba(255,192,203,0.15)] transition-all duration-300;
+  box-shadow: 0 4px 20px rgba(255, 182, 193, 0.1); /* Soft pink glow */
+}
+
+.birthday-popup-container:hover .popup-bubble {
+  @apply bg-white/10 border-pink-300/30 -translate-y-1;
+  box-shadow: 0 8px 30px rgba(255, 182, 193, 0.3);
+}
+
+.icon-wrapper {
+  @apply flex items-center justify-center bg-black/40 rounded-full p-2;
+}
+
+.popup-text {
+  @apply text-sm font-serif text-white/90 tracking-wide font-medium mr-2 whitespace-nowrap overflow-hidden transition-all duration-300 max-w-0 opacity-0 md:max-w-full md:opacity-100;
+}
+
+.birthday-popup-container:hover .popup-text {
+  @apply max-w-[150px] opacity-100;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
