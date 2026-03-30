@@ -30,3 +30,13 @@
   50% { transform: translateY(-8px); }
   100% { transform: translateY(0px); }
 }
+
+.countdown-active {
+  max-width: 200px !important;
+  opacity: 1 !important;
+  margin-left: 10px !important;
+  font-family: monospace;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  color: #fb7185;
+}

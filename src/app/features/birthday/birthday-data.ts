@@ -4,7 +4,7 @@ export const BIRTHDAY_DATA = {
         instruction: "Start with the letter first. Then come back for your final surprise.",
         letterButtonLabel: "My Favorite Journal Entry",
         callButtonLabel: "Final Step",
-        meetUrl: "https://meet.google.com/",
+        meetUrl: "https://meet.google.com/drb-qakd-gyu",
     },
     letter: {
         title: "My Favorite Journal Entry",
